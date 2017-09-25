@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+		<script>
+			$.fn.tejkEnBoffra = function(options) 
+			{
+				this.tejkBoffra = {};
+				this.tejkBoffra = options;
+				$(this).addClass("boffra");
+				$(this).html(options.varde);
+			};
+			$.fn.tejkBoffra = function(list, options) 
+			{
+				var bofferelement = this;
+				$(list).each(function () 
+				{
+					var el = $(	"<div>",{class: "test"});
+					$(el).appendTo(bofferelement);
+					$(el).tejkEnBoffra({varde: this})
+				});
+			};
+		
+		</script>
+		<style>
+			.tejkBoffra
+			{
+				border: 1px solid red;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="bofferlista"></div>
+		<script>
+			$(".bofferlista").tejkBoffra( 
+							["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M"], 
+							{}
+			);
+		</script>
+	</body>
+</html>
