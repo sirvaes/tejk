@@ -1,31 +1,153 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<meta charset="UTF-8">
 		<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
 		<script>
 			$.fn.tejkEnBoffra = function(options) 
 			{
-				this.tejkBoffra = {};
-				this.tejkBoffra = options;
-				$(this).addClass("boffra");
+				this.tejkEnBoffra = {};
+				this.tejkEnBoffra.options = options;
+				var currentelement = this;
+				$(this).addClass("enTejkBoffra");
 				$(this).html(options.varde);
+				$(this).click(function() 
+				{
+					var parent = $(this).closest(".tejkBoffra");
+					$(parent).find(".enTejkBoffra").removeClass("selected");
+					$(this).addClass("selected");
+					currentelement.tejkEnBoffra.options.parentelement.tejkBoffra.centerSelectedChild();
+				});
 			};
 			$.fn.tejkBoffra = function(list, options) 
 			{
-				var bofferelement = this;
+			
+				var el = $(	"<div>",{class: "tejkBoffra"});
+				$(el).appendTo(this);
+				var bofferelement = el;
+				bofferelement.tejkBoffra = {};
+				bofferelement.tejkBoffra.selectorAllChildren = "> .enTejkBoffra";
+				bofferelement.tejkBoffra.options = options;
+				bofferelement.tejkBoffra.moveLeft = function () 
+				{
+					var child = $(bofferelement).find(bofferelement.tejkBoffra.selectorAllChildren).first();
+					$(bofferelement).append(child);
+				};
+				bofferelement.tejkBoffra.moveRight = function () 
+				{
+					var child = $(bofferelement).find(bofferelement.tejkBoffra.selectorAllChildren).last();
+					$(bofferelement).prepend(child);
+				};
+				bofferelement.tejkBoffra.count = function () 
+				{
+					return $(bofferelement).find(bofferelement.tejkBoffra.selectorAllChildren).length;
+				};
+				bofferelement.tejkBoffra.indexOfSelectedChild = function () 
+				{
+					return $(bofferelement).find(bofferelement.tejkBoffra.selectorAllChildren + ".selected").index();
+				};
+				bofferelement.tejkBoffra.offsetFromCenterOfSelectedChild = function () 
+				{
+					var count = bofferelement.tejkBoffra.count();
+					var center = Math.floor(count / 2);
+					var index = bofferelement.tejkBoffra.indexOfSelectedChild(); 
+					var offset = index - center;
+					return offset;
+				};
+				bofferelement.tejkBoffra.centerSelectedChild = function () 
+				{
+					bofferelement.tejkBoffra.centerSelectedChildStart();
+				};
+				bofferelement.tejkBoffra.centerSelectedChildStart = function () 
+				{
+					$(bofferelement).find(bofferelement.tejkBoffra.selectorAllChildren + ":not(.selected)").fadeOut(function() { $(this).css('display', 'block').css('visibility', 'hidden'); });
+					setTimeout(function () {bofferelement.tejkBoffra.centerSelectedChildTimer = setInterval(bofferelement.tejkBoffra.centerSelectedChildStep, 10)}, 200);
+				};
+				bofferelement.tejkBoffra.centerSelectedChildStop = function () 
+				{
+					clearInterval(bofferelement.tejkBoffra.centerSelectedChildTimer);
+					$(bofferelement).find(bofferelement.tejkBoffra.selectorAllChildren + ":not(.selected)").fadeIn(function() { $(this).css('visibility', 'visible'); });
+				};
+				bofferelement.tejkBoffra.centerSelectedChildTimer = null;
+				bofferelement.tejkBoffra.centerSelectedChildStep = function () 
+				{
+					var offset = bofferelement.tejkBoffra.offsetFromCenterOfSelectedChild();
+					var moveright = offset > 0;
+					if (offset === 0)
+					{
+						bofferelement.tejkBoffra.centerSelectedChildStop();
+					}
+					else if (moveright)
+					{
+						bofferelement.tejkBoffra.moveLeft();
+					}
+					else
+					{
+						bofferelement.tejkBoffra.moveRight();
+					}
+				};
 				$(list).each(function () 
 				{
 					var el = $(	"<div>",{class: "test"});
 					$(el).appendTo(bofferelement);
-					$(el).tejkEnBoffra({varde: this})
+					$(el).tejkEnBoffra({varde: this, parentelement: bofferelement});
+				});
+				$(document).keydown( function(e) 
+				{
+				    switch(e.which) 
+					{
+						case 37: // left
+							$(bofferelement).find(bofferelement.tejkBoffra.selectorAllChildren + ".selected").next().click();
+							break;
+						case 39: // right
+							$(bofferelement).find(bofferelement.tejkBoffra.selectorAllChildren + ".selected").next().click();
+							break;
+						default: return; // exit this handler for other keys
+					}
+					e.preventDefault();
 				});
 			};
 		
 		</script>
 		<style>
+			.bofferlista
+			{
+				width: 100%;
+				overflow: hidden;
+			}
 			.tejkBoffra
 			{
+				float: left;
+				display: block;
+				width: auto;
+				box-sizing: border-box;
+				overflow: hidden;
+			}
+			.enTejkBoffra
+			{
 				border: 1px solid red;
+				float: left;
+				display: block;
+				box-sizing: border-box;
+				padding: 2%;
+				cursor: pointer;
+				width: 40px;
+				height: 5%;
+				text-align: center;
+				margin: 25% 0;
+				line-height: 2em;
+			}
+			.enTejkBoffra.selected
+			{
+				border: 5px solid red;
+				width: 50%;
+				height: 50%;
+				margin: 0;
+				padding: 50% 0;
+			}
+			.enTejkBoffra.visibilityOff
+			{
+				visibility: hidden;
 			}
 		</style>
 	</head>
@@ -33,8 +155,9 @@
 		<div class="bofferlista"></div>
 		<script>
 			$(".bofferlista").tejkBoffra( 
-							["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M"], 
-							{}
+				["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "Å", "Ä", "Ö",
+				 "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", ], 
+				{}
 			);
 		</script>
 	</body>
